@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useApp } from "@/context/AppContext";
 
@@ -11,6 +11,14 @@ export function ProfileModal({ open, onClose }: { open: boolean; onClose: () => 
   const [preview, setPreview] = useState<string | null>(profile?.photo_url ?? null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open && profile) {
+      setUsername(profile.username);
+      setFile(null);
+      setPreview(profile.photo_url);
+    }
+  }, [open, profile]);
 
   if (!open || !profile) return null;
 
