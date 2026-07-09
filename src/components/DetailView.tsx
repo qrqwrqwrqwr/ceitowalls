@@ -76,6 +76,17 @@ export function DetailView({
     setCommentDraft("");
   }
 
+  async function deleteComment(id: string) {
+    const supabase = createClient();
+    const { error } = await supabase.from("comments").delete().eq("id", id);
+    if (error) {
+      showToast(`Error al eliminar: ${error.message}`);
+      return;
+    }
+    setCommentList((prev) => prev.filter((c) => c.id !== id));
+    showToast("Comentario eliminado");
+  }
+
   async function download() {
     const res = await fetch(wallpaper.media_url);
     const blob = await res.blob();
@@ -288,6 +299,14 @@ export function DetailView({
                           <span className="text-[11.5px] text-[#808080]">
                             {new Date(c.created_at).toLocaleDateString()}
                           </span>
+                          {profile && (profile.id === c.user_id || profile.is_admin) && (
+                            <button
+                              onClick={() => deleteComment(c.id)}
+                              className="ml-auto text-[11.5px] text-[#808080] hover:text-[#f06a6a]"
+                            >
+                              Eliminar
+                            </button>
+                          )}
                         </div>
                         <div className="text-[13.5px] leading-relaxed text-[#c8c8c8]">{c.text}</div>
                       </div>
