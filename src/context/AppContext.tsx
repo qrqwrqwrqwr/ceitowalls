@@ -9,8 +9,6 @@ type ToastState = { id: number; message: string } | null;
 type AppContextValue = {
   profile: Profile | null;
   loading: boolean;
-  isAdminUnlocked: boolean;
-  setIsAdminUnlocked: (v: boolean) => void;
   authModalOpen: boolean;
   setAuthModalOpen: (v: boolean) => void;
   toast: ToastState;
@@ -24,7 +22,6 @@ const AppContext = createContext<AppContextValue | null>(null);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
 
@@ -67,7 +64,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    setIsAdminUnlocked(false);
     setProfile(null);
   }, []);
 
@@ -76,8 +72,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         profile,
         loading,
-        isAdminUnlocked,
-        setIsAdminUnlocked,
         authModalOpen,
         setAuthModalOpen,
         toast,

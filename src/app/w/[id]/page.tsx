@@ -12,6 +12,9 @@ export default async function WallpaperPage({ params }: { params: Promise<{ id: 
   const { data: wallpaper } = await supabase.from("wallpapers").select("*").eq("id", id).single();
   if (!wallpaper) notFound();
 
+  await supabase.rpc("increment_wallpaper_views", { wallpaper_id: id });
+  wallpaper.views = (wallpaper.views ?? 0) + 1;
+
   const { data: comments } = await supabase
     .from("comments")
     .select("id, wallpaper_id, user_id, text, created_at, profiles(username)")

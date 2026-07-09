@@ -9,6 +9,7 @@ export type Wallpaper = {
   file_size_bytes: number;
   uploader_id: string | null;
   votes: number;
+  views: number;
   created_at: string;
 };
 

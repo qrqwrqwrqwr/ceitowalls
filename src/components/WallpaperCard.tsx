@@ -126,6 +126,7 @@ export function WallpaperCard({
       >
         <div className="mb-2 flex items-center gap-2">
           <span className="flex items-center gap-0.5 text-[12.5px] text-[#a88888]">⇅ {wallpaper.votes}</span>
+          <span className="flex items-center gap-1 text-[12.5px] text-[#a88888]">👁 {wallpaper.views}</span>
           <span className="rounded bg-[oklch(0.55_0.2_25)] px-2.5 py-1 text-[11.5px] font-semibold text-[#2a0505]">
             {wallpaper.category}
           </span>

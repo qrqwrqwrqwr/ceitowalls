@@ -341,9 +341,13 @@ export function DetailView({
               <span className="text-[#909090]">Resolution</span>
               <span className="text-[#e0e0e0]">{wallpaper.resolution}</span>
             </div>
-            <div className="flex justify-between px-4 py-3 text-[13.5px]">
+            <div className="flex justify-between border-b border-white/6 px-4 py-3 text-[13.5px]">
               <span className="text-[#909090]">File Size</span>
               <span className="text-[#e0e0e0]">{formatBytes(wallpaper.file_size_bytes)}</span>
+            </div>
+            <div className="flex justify-between px-4 py-3 text-[13.5px]">
+              <span className="text-[#909090]">Views</span>
+              <span className="text-[#e0e0e0]">{wallpaper.views.toLocaleString()}</span>
             </div>
           </div>
 

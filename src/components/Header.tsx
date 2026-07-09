@@ -63,7 +63,7 @@ export function Header({
                 }}
                 className="rounded-md px-3.5 py-2 text-left text-sm text-[#d0d0d0] hover:bg-white/10 hover:text-white"
               >
-                Todas
+                Inicio
               </button>
               {CATEGORY_PRESET.map((c) => (
                 <button

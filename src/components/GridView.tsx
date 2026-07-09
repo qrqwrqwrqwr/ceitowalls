@@ -7,23 +7,21 @@ import { useApp } from "@/context/AppContext";
 import { Header } from "@/components/Header";
 import { WallpaperCard } from "@/components/WallpaperCard";
 import { UploadButton } from "@/components/modals/UploadModal";
-import { AdminModal } from "@/components/modals/AdminModal";
 import { DeleteConfirmModal } from "@/components/modals/DeleteConfirmModal";
 import type { Wallpaper } from "@/lib/types";
 
 const PAGE_SIZE = 16;
 
 export function GridView({ wallpapers }: { wallpapers: Wallpaper[] }) {
-  const { profile, isAdminUnlocked, setIsAdminUnlocked, showToast } = useApp();
+  const { profile, showToast } = useApp();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeResolution, setActiveResolution] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [adminModalOpen, setAdminModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  const isAdmin = Boolean(profile?.is_admin && isAdminUnlocked);
+  const isAdmin = Boolean(profile?.is_admin);
 
   const filtered = useMemo(() => {
     return wallpapers.filter((w) => {
@@ -40,15 +38,6 @@ export function GridView({ wallpapers }: { wallpapers: Wallpaper[] }) {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-  function toggleAdmin() {
-    if (isAdminUnlocked) {
-      setIsAdminUnlocked(false);
-      showToast("Modo administrador desactivado");
-    } else {
-      setAdminModalOpen(true);
-    }
-  }
 
   async function confirmDelete() {
     if (!deleteTarget) return;
@@ -83,20 +72,7 @@ export function GridView({ wallpapers }: { wallpapers: Wallpaper[] }) {
       <main className="px-[30px] pb-[140px] pt-[26px]">
         <div className="mb-[18px] flex items-center justify-between">
           <div className="text-[13px] font-semibold tracking-[1.2px] text-[#a88888]">LATEST VIDEOS</div>
-          <div className="flex items-center gap-2.5">
-            {profile?.is_admin && <UploadButton />}
-            {profile?.is_admin && (
-              <button
-                onClick={toggleAdmin}
-                title="Modo administrador"
-                className={`h-[34px] w-[34px] rounded-[7px] border border-white/12 bg-[#0d0d0d] text-sm hover:border-white/40 ${
-                  isAdminUnlocked ? "text-[oklch(0.6_0.22_25)]" : "text-white"
-                }`}
-              >
-                ⚙
-              </button>
-            )}
-          </div>
+          <div className="flex items-center gap-2.5">{profile?.is_admin && <UploadButton />}</div>
         </div>
 
         {pageItems.length === 0 ? (
@@ -133,7 +109,6 @@ export function GridView({ wallpapers }: { wallpapers: Wallpaper[] }) {
         )}
       </main>
 
-      <AdminModal open={adminModalOpen} onClose={() => setAdminModalOpen(false)} />
       <DeleteConfirmModal
         open={Boolean(deleteTarget)}
         onCancel={() => setDeleteTarget(null)}
