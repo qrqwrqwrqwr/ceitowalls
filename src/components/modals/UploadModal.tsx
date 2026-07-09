@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useApp } from "@/context/AppContext";
 import { useRouter } from "next/navigation";
+import { DISCORD_CATEGORY_PRESET } from "@/lib/types";
 
 type PendingUpload = {
   file: File;
@@ -128,8 +129,24 @@ export function UploadButton() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="Ej: Anime, Fantasy, Vehicle…"
-              className="mb-4 w-full rounded-[7px] border border-white/15 bg-[#181818] px-3 py-2.5 text-[13.5px] text-white outline-none"
+              className="mb-2 w-full rounded-[7px] border border-white/15 bg-[#181818] px-3 py-2.5 text-[13.5px] text-white outline-none"
             />
+            <div className="mb-4 flex gap-2">
+              {DISCORD_CATEGORY_PRESET.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCategory(c)}
+                  className={`rounded-full border px-3 py-1 text-[12px] ${
+                    category === c
+                      ? "border-white bg-white text-black"
+                      : "border-white/15 bg-[#181818] text-[#c0c0c0] hover:border-white/40"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={cancel}

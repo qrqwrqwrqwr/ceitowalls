@@ -47,4 +47,4 @@ export const RESOLUTION_PRESET = [
   "1280x720",
 ];
 
-export const DISCORD_CATEGORY_PRESET = ["Banners", "Iconos"];
+export const DISCORD_CATEGORY_PRESET = ["Banner", "Icono"];
