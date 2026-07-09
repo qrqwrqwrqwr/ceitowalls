@@ -174,14 +174,14 @@ export function AuthModal() {
           <>
             <div className="mb-2 text-[15px] font-semibold text-[#f0f0f0]">Verificá tu correo</div>
             <div className="mb-4 text-[12.5px] text-[#a0a0a0]">
-              Te enviamos un código de 6 dígitos a <span className="text-[#e0e0e0]">{email}</span>. Ingresalo para
-              activar tu cuenta.
+              Te enviamos un código a <span className="text-[#e0e0e0]">{email}</span>. Ingresalo para activar tu
+              cuenta.
             </div>
             <input
               value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="Código de 6 dígitos"
-              maxLength={6}
+              onChange={(e) => setCode(e.target.value.replace(/\s/g, ""))}
+              placeholder="Código de verificación"
+              maxLength={12}
               className="mb-2 w-full rounded-[7px] border border-white/15 bg-[#181818] px-3 py-2.5 text-center text-[13.5px] tracking-[2px] text-white outline-none"
             />
             {error && <div className="mb-2 text-[12.5px] text-[#f06a6a]">{error}</div>}
@@ -194,7 +194,7 @@ export function AuthModal() {
               </button>
               <button
                 onClick={submitVerify}
-                disabled={submitting || code.length !== 6}
+                disabled={submitting || code.length < 6}
                 className="flex-1 rounded-[7px] bg-white py-2.5 text-[13px] font-bold text-black disabled:opacity-50"
               >
                 Verificar
