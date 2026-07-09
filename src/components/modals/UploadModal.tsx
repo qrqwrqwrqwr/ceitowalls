@@ -109,7 +109,7 @@ export function UploadButton() {
         onClick={trigger}
         className="rounded-[7px] bg-white px-4 py-2.5 text-[12.5px] font-bold tracking-[0.4px] text-black hover:bg-[#d8d8d8]"
       >
-        ↑ SUBIR WALLPAPER
+        ↑ SUBIR
       </button>
 
       {pending && (
