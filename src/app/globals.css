@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-poppins);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+@keyframes rgbCycle {
+  from {
+    filter: hue-rotate(0deg);
+  }
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+body {
+  background: #000;
+  color: #e8dede;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: oklch(0.55 0.2 25 / 0.35);
+}

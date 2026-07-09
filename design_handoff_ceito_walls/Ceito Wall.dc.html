@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#000;font-family:'Poppins',sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:oklch(0.55 0.2 25 / 0.35)}
+  *{box-sizing:border-box}
+  @keyframes rgbCycle{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(360deg)}}
+  .rgb-accent{animation:rgbCycle 6s linear infinite}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#000;color:#e8dede;position:relative;overflow:hidden">
+
+  <!-- HEADER -->
+  <header style="display:flex;align-items:center;gap:28px;padding:14px 28px;background:rgba(0,0,0,0.9);border-bottom:1px solid rgba(255,255,255,0.1);position:relative;z-index:20;backdrop-filter:blur(4px)">
+    <a href="#" onClick="{{ goHome }}" style="display:flex;align-items:center;gap:10px;flex-shrink:0;cursor:pointer">
+      <div style="width:42px;height:42px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+        <img src="uploads/pasted-1783565208091-0.png" alt="Ceito Wall logo" style="width:130%;height:130%;object-fit:cover;mix-blend-mode:screen" />
+      </div>
+      <div style="font-size:20px;font-weight:700;letter-spacing:0.3px;line-height:1">
+        <span style="color:#f2f3f5">CEITO</span><span class="rgb-accent" style="color:oklch(0.6 0.22 25)">WALLS</span>
+      </div>
+    </a>
+
+    <nav style="display:flex;align-items:center;gap:22px;font-size:14.5px;font-weight:500;color:#b7bac2">
+      <div style="position:relative">
+        <button onClick="{{ toggleCategories }}" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);color:#e0e0e0;font:inherit;font-weight:500;font-size:13.5px;display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 16px;border-radius:999px;transition:background .2s,border-color .2s" style-hover="background:#1a1a1a;border-color:rgba(255,255,255,0.35)">
+          Categories
+          <span style="font-size:10px;transform:{{ categoriesArrow }};transition:transform .2s">▾</span>
+        </button>
+        <sc-if value="{{ categoriesOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:100%;left:0;margin-top:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,0.6);padding:6px;display:flex;flex-direction:column;min-width:180px;z-index:30">
+            <sc-for list="{{ categoryButtons }}" as="cb" hint-placeholder-count="3">
+              <button onClick="{{ cb.go }}" style="text-align:left;background:none;border:none;padding:9px 14px;border-radius:6px;font:inherit;font-size:14px;color:#d0d0d0;cursor:pointer" style-hover="background:rgba(255,255,255,0.1);color:#ffffff">{{ cb.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="position:relative">
+        <button onClick="{{ toggleResolutions }}" style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);color:#e0e0e0;font:inherit;font-weight:500;font-size:13.5px;display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 16px;border-radius:999px;transition:background .2s,border-color .2s" style-hover="background:#1a1a1a;border-color:rgba(255,255,255,0.35)">
+          Resolutions
+          <span style="font-size:10px;transform:{{ resolutionsArrow }};transition:transform .2s">▾</span>
+        </button>
+        <sc-if value="{{ resolutionsOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:100%;left:0;margin-top:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,0.6);padding:6px;display:flex;flex-direction:column;min-width:190px;max-height:320px;overflow-y:auto;z-index:30">
+            <sc-for list="{{ resolutionButtons }}" as="rb" hint-placeholder-count="14">
+              <button onClick="{{ rb.go }}" style="text-align:left;background:none;border:none;padding:9px 14px;border-radius:6px;font:inherit;font-size:14px;color:#d0d0d0;cursor:pointer" style-hover="background:rgba(255,255,255,0.1);color:#ffffff">{{ rb.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </nav>
+
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 14px;width:280px">
+      <span style="color:#7a7a7a;font-size:14px">⌕</span>
+      <input placeholder="Search live wallpapers…" value="{{ searchQuery }}" onChange="{{ setSearchQuery }}" style="background:none;border:none;outline:none;color:#e8dede;font:inherit;font-size:13.5px;width:100%" />
+    </div>
+
+    <sc-if value="{{ isLoggedIn }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onClick="{{ openProfile }}" style="display:flex;align-items:center;gap:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);color:#e0e0e0;font:inherit;font-weight:600;font-size:13px;cursor:pointer;padding:6px 14px 6px 6px;border-radius:999px" style-hover="border-color:rgba(255,255,255,0.4)">
+          <span style="position:relative;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:#e0e0e0;font-size:12px;font-weight:700;overflow:hidden">
+            {{ currentUserInitial }}
+            <img src="{{ currentUserPhoto }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:{{ avatarImgDisplay }}" />
+          </span>
+          {{ currentUser }}
+        </button>
+        <button onClick="{{ logout }}" title="Cerrar sesión" style="width:34px;height:34px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);background:#0d0d0d;color:#a0a0a0;font-size:13px;cursor:pointer" style-hover="border-color:rgba(255,255,255,0.4);color:#fff">⏻</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ !isLoggedIn }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ openLogin }}" style="background:#fff;color:#000;border:none;font:inherit;font-weight:700;font-size:13px;cursor:pointer;padding:9px 16px;border-radius:999px" style-hover="background:#d8d8d8">INICIAR SESIÓN</button>
+    </sc-if>
+  </header>
+
+  <!-- BODY -->
+  <sc-if value="{{ isListView }}" hint-placeholder-val="{{ true }}">
+  <div>
+
+    <!-- MAIN -->
+    <main style="padding:26px 30px 140px;position:relative;z-index:5">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <div style="font-size:13px;font-weight:600;letter-spacing:1.2px;color:#a88888">LATEST VIDEOS</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ triggerUpload }}" style="background:#fff;color:#000;border:none;border-radius:7px;padding:9px 16px;font:inherit;font-weight:700;font-size:12.5px;letter-spacing:0.4px;cursor:pointer" style-hover="background:#d8d8d8">↑ SUBIR WALLPAPER</button>
+          </sc-if>
+          <button onClick="{{ unlockAdmin }}" title="Modo administrador" style="width:34px;height:34px;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background:#0d0d0d;color:{{ adminIconColor }};font-size:14px;cursor:pointer" style-hover="border-color:rgba(255,255,255,0.4)">⚙</button>
+        </div>
+        <input type="file" ref="{{ fileInputRef }}" onChange="{{ handleFileChange }}" accept="image/*,video/*" style="display:none" />
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px">
+        <sc-for list="{{ pagedCards }}" as="card">
+          <div style="display:block;background:#0d0d0d;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);transition:box-shadow .25s,border-color .25s,transform .25s" style-hover="box-shadow:0 12px 36px 4px rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.5);transform:translateY(-4px) scale(1.015)">
+            <div onClick="{{ card.togglePlay }}" style="position:relative;aspect-ratio:16/9;background:repeating-linear-gradient(135deg,{{ card.stripeA }} 0 14px,{{ card.stripeB }} 14px 28px);display:flex;align-items:center;justify-content:center;transition:filter .25s;overflow:hidden;cursor:pointer" style-hover="filter:brightness(1.35)">
+              <div style="{{ card.thumbStyle }}"></div>
+              <video ref="{{ card.videoRefCallback }}" muted="{{ true }}" preload="metadata" playsInline="{{ true }}" style="{{ card.videoGridStyle }}"></video>
+              <div style="{{ card.progressTrackStyle }}">
+                <div data-progress-fill="{{ card.id }}" style="height:100%;width:0%;background:#ffffff;transition:width .1s linear"></div>
+              </div>
+              <span style="{{ card.playIconStyle }}">
+                <span style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.92);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(0,0,0,0.5)">
+                  <span style="width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:16px solid #111;margin-left:4px"></span>
+                </span>
+              </span>
+              <span style="font:500 11px 'JetBrains Mono',monospace;color:rgba(255,255,255,0.55);text-align:center;padding:0 16px;position:absolute;display:{{ card.placeholderDisplay }}">WALLPAPER PLACEHOLDER</span>
+              <span style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.65);color:#e8e9ec;font:500 11.5px 'JetBrains Mono',monospace;padding:4px 8px;border-radius:4px;letter-spacing:0.3px">{{ card.res }}</span>
+              <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ card.remove }}" title="Eliminar" style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:6px;border:none;background:rgba(0,0,0,0.7);color:#f0a0a0;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="background:rgba(200,0,0,0.85);color:#fff">✕</button>
+              </sc-if>
+            </div>
+            <div onClick="{{ card.open }}" style="padding:12px 14px 14px;cursor:pointer" style-hover="background:rgba(255,255,255,0.04)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+                <span style="font-size:12.5px;color:#a88888;display:flex;align-items:center;gap:3px">⇅ {{ card.votes }}</span>
+                <span style="background:oklch(0.55 0.2 25);color:#2a0505;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:4px">{{ card.category }}</span>
+              </div>
+              <div style="font-size:14.5px;font-weight:600;color:#f0e6e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ card.title }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ showPagination }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:36px">
+          <sc-for list="{{ pageButtons }}" as="pb" hint-placeholder-count="5">
+            <sc-if value="{{ pb.isEllipsis }}" hint-placeholder-val="{{ false }}">
+              <span style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:#707070;font-size:14px">…</span>
+            </sc-if>
+            <sc-if value="{{ !pb.isEllipsis }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ pb.go }}" style="width:40px;height:40px;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background:{{ pb.bg }};color:{{ pb.fg }};font:inherit;font-weight:600;font-size:14px;cursor:pointer" style-hover="border-color:rgba(255,255,255,0.5)">{{ pb.label }}</button>
+            </sc-if>
+          </sc-for>
+          <button onClick="{{ nextPage }}" disabled="{{ !hasNextPage }}" style="height:40px;padding:0 18px;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background:#0d0d0d;color:{{ nextFg }};font:inherit;font-weight:700;font-size:13px;letter-spacing:0.4px;cursor:{{ nextCursor }}" style-hover="border-color:rgba(255,255,255,0.5)">NEXT →</button>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+  </sc-if>
+
+  <!-- ADMIN MODAL -->
+  <sc-if value="{{ adminModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100">
+      <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:26px;width:300px">
+        <div style="font-size:15px;font-weight:600;color:#f0f0f0;margin-bottom:14px">Código de administrador</div>
+        <input type="password" value="{{ adminCodeValue }}" onChange="{{ setAdminCodeValue }}" style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:10px 12px;color:#fff;font:inherit;font-size:13.5px;margin-bottom:8px" />
+        <sc-if value="{{ adminError }}" hint-placeholder-val="{{ false }}">
+          <div style="color:#f06a6a;font-size:12.5px;margin-bottom:10px">Código incorrecto.</div>
+        </sc-if>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button onClick="{{ closeAdminModal }}" style="flex:1;background:#181818;color:#c0c0c0;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:10px;font:inherit;font-size:13px;cursor:pointer">Cancelar</button>
+          <button onClick="{{ submitAdminCode }}" style="flex:1;background:#fff;color:#000;border:none;border-radius:7px;padding:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer">Entrar</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- DELETE CONFIRM -->
+  <sc-if value="{{ showConfirmDelete }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100">
+      <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:26px;width:300px">
+        <div style="font-size:15px;font-weight:600;color:#f0f0f0;margin-bottom:18px">¿Eliminar este wallpaper?</div>
+        <div style="display:flex;gap:8px">
+          <button onClick="{{ cancelDelete }}" style="flex:1;background:#181818;color:#c0c0c0;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:10px;font:inherit;font-size:13px;cursor:pointer">Cancelar</button>
+          <button onClick="{{ confirmDelete }}" style="flex:1;background:#e0453a;color:#fff;border:none;border-radius:7px;padding:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- AUTH MODAL -->
+  <sc-if value="{{ authModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100">
+      <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:26px;width:320px">
+        <sc-if value="{{ isAuthForm }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:18px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:18px">
+            <button onClick="{{ setAuthModeLogin }}" style="background:none;border:none;padding:0 0 10px;font:inherit;font-weight:600;font-size:13.5px;cursor:pointer;color:{{ authLoginFg }};border-bottom:{{ authLoginBorder }}">Iniciar sesión</button>
+            <button onClick="{{ setAuthModeRegister }}" style="background:none;border:none;padding:0 0 10px;font:inherit;font-weight:600;font-size:13.5px;cursor:pointer;color:{{ authRegisterFg }};border-bottom:{{ authRegisterBorder }}">Registrarse</button>
+          </div>
+
+          <button onClick="{{ googleLogin }}" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid rgba(0,0,0,0.1);border-radius:7px;padding:10px;font:inherit;font-weight:600;font-size:13.5px;cursor:pointer;margin-bottom:16px" style-hover="background:#f2f2f2">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.87 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.94v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.96H.94A9 9 0 0 0 0 9c0 1.45.35 2.83.94 4.04l3.01-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .94 4.96l3.01 2.34C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+            Continuar con Google
+          </button>
+
+          <sc-if value="{{ isAuthRegister }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:11.5px;color:#808080;margin-bottom:6px">Nombre de usuario</div>
+            <input type="text" placeholder="Tu nombre" value="{{ authUsername }}" onChange="{{ setAuthUsername }}" style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:10px 12px;color:#fff;font:inherit;font-size:13.5px;margin-bottom:12px" />
+          </sc-if>
+
+          <div style="font-size:11.5px;color:#808080;margin-bottom:6px">Correo</div>
+          <input type="email" placeholder="tu@correo.com" value="{{ authEmail }}" onChange="{{ setAuthEmail }}" style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:10px 12px;color:#fff;font:inherit;font-size:13.5px;margin-bottom:12px" />
+
+          <div style="font-size:11.5px;color:#808080;margin-bottom:6px">Contraseña</div>
+          <input type="password" placeholder="••••••••" value="{{ authPassword }}" onChange="{{ setAuthPassword }}" style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:10px 12px;color:#fff;font:inherit;font-size:13.5px;margin-bottom:8px" />
+
+          <sc-if value="{{ hasAuthError }}" hint-placeholder-val="{{ false }}">
+            <div style="color:#f06a6a;font-size:12.5px;margin-bottom:8px">{{ authError }}</div>
+          </sc-if>
+
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button onClick="{{ closeAuth }}" style="flex:1;background:#181818;color:#c0c0c0;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:10px;font:inherit;font-size:13px;cursor:pointer">Cancelar</button>
+            <button onClick="{{ submitAuth }}" style="flex:1;background:#fff;color:#000;border:none;border-radius:7px;padding:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer">{{ authSubmitLabel }}</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isAuthVerify }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:15px;font-weight:600;color:#f0f0f0;margin-bottom:8px">Verificá tu correo</div>
+          <div style="font-size:12.5px;color:#a0a0a0;margin-bottom:16px">Simulamos el envío de un código a {{ verifyEmailLabel }} (mostrado en el toast). Este entorno no envía correos reales — en producción llegaría por email.</div>
+          <input type="text" placeholder="Código de 6 dígitos" value="{{ verifyInput }}" onChange="{{ setVerifyInput }}" style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:10px 12px;color:#fff;font:inherit;font-size:13.5px;margin-bottom:8px;letter-spacing:2px;text-align:center" />
+          <sc-if value="{{ hasVerifyError }}" hint-placeholder-val="{{ false }}">
+            <div style="color:#f06a6a;font-size:12.5px;margin-bottom:8px">{{ verifyError }}</div>
+          </sc-if>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button onClick="{{ backToAuthForm }}" style="flex:1;background:#181818;color:#c0c0c0;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:10px;font:inherit;font-size:13px;cursor:pointer">Volver</button>
+            <button onClick="{{ submitVerify }}" style="flex:1;background:#fff;color:#000;border:none;border-radius:7px;padding:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer">Verificar</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- PROFILE MODAL -->
+  <sc-if value="{{ profileModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100">
+      <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:26px;width:300px">
+        <div style="font-size:15px;font-weight:600;color:#f0f0f0;margin-bottom:18px">Editar perfil</div>
+
+        <div style="display:flex;justify-content:center;margin-bottom:18px">
+          <button onClick="{{ triggerProfilePhoto }}" style="position:relative;width:80px;height:80px;border-radius:50%;border:2px dashed rgba(255,255,255,0.25);background:rgba(255,255,255,0.05);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.6);font-size:28px;font-weight:300;cursor:pointer;overflow:hidden" style-hover="border-color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.08)">
+            <span style="display:{{ profilePlusDisplay }}">+</span>
+            <img src="{{ profilePreviewUrl }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:{{ profileImgDisplay }}" />
+          </button>
+          <input type="file" ref="{{ profilePhotoInputRef }}" onChange="{{ setProfilePhoto }}" accept="image/*" style="display:none" />
+        </div>
+
+        <div style="font-size:11.5px;color:#808080;margin-bottom:6px">Nombre de usuario</div>
+        <input type="text" value="{{ profileUsernameDraft }}" onChange="{{ setProfileUsername }}" style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:10px 12px;color:#fff;font:inherit;font-size:13.5px;margin-bottom:16px" />
+
+        <div style="display:flex;gap:8px">
+          <button onClick="{{ closeProfile }}" style="flex:1;background:#181818;color:#c0c0c0;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:10px;font:inherit;font-size:13px;cursor:pointer">Cancelar</button>
+          <button onClick="{{ saveProfile }}" style="flex:1;background:#fff;color:#000;border:none;border-radius:7px;padding:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- UPLOAD CATEGORY MODAL -->
+  <sc-if value="{{ showUploadModal }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100">
+      <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:26px;width:320px">
+        <div style="font-size:15px;font-weight:600;color:#f0f0f0;margin-bottom:14px">Detalles del wallpaper</div>
+        <sc-if value="{{ detecting }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12.5px;color:#8ac0ff;margin-bottom:12px">🔎 Detectando contenido automáticamente…</div>
+        </sc-if>
+        <div style="font-size:11.5px;color:#808080;margin-bottom:6px">Título</div>
+        <input type="text" placeholder="Nombre del wallpaper" value="{{ titleValue }}" onChange="{{ setTitleValue }}" style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:10px 12px;color:#fff;font:inherit;font-size:13.5px;margin-bottom:12px" />
+        <div style="font-size:11.5px;color:#808080;margin-bottom:6px">Etiqueta / categoría</div>
+        <input type="text" placeholder="Ej: Anime, Fantasy, Vehicle…" value="{{ categoryTagValue }}" onChange="{{ setCategoryTagValue }}" style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:10px 12px;color:#fff;font:inherit;font-size:13.5px;margin-bottom:16px" />
+        <div style="display:flex;gap:8px">
+          <button onClick="{{ cancelPendingUpload }}" style="flex:1;background:#181818;color:#c0c0c0;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:10px;font:inherit;font-size:13px;cursor:pointer">Cancelar</button>
+          <button onClick="{{ confirmPendingUpload }}" style="flex:1;background:#fff;color:#000;border:none;border-radius:7px;padding:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer">Agregar</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- TOAST -->
+  <sc-if value="{{ showToastBox }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0d0d0d;border:1px solid rgba(255,255,255,0.15);color:#f0f0f0;padding:12px 20px;border-radius:8px;font-size:13.5px;z-index:100;box-shadow:0 12px 32px rgba(0,0,0,0.5)">{{ toastMsg }}</div>
+  </sc-if>
+
+  <!-- DETAIL VIEW -->
+  <sc-if value="{{ isDetailView }}" hint-placeholder-val="{{ false }}">
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;padding:26px 30px 60px;align-items:start;position:relative;z-index:5">
+
+    <div>
+      <button onClick="{{ backToGrid }}" style="background:none;border:none;color:#a0a0a0;font:inherit;font-size:13.5px;cursor:pointer;padding:0 0 18px;display:flex;align-items:center;gap:6px" style-hover="color:#ffffff">← Back to wallpapers</button>
+
+      <div style="position:relative;border-radius:10px;overflow:hidden;background:#0d0d0d;border:1px solid rgba(255,255,255,0.08)">
+        <div style="position:relative;aspect-ratio:16/9;background:repeating-linear-gradient(135deg,{{ selected.stripeA }} 0 14px,{{ selected.stripeB }} 14px 28px);display:flex;align-items:center;justify-content:center;overflow:hidden">
+          <div style="{{ selected.imgBgStyle }}"></div>
+          <sc-if value="{{ mounted }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ selected.showVideo }}" hint-placeholder-val="{{ false }}">
+            <video ref="{{ selected.detailVideoRef }}" muted="{{ true }}" controls="{{ true }}" autoPlay="{{ true }}" loop="{{ true }}" style="width:100%;height:100%;object-fit:contain;background:#000;{{ videoFilterStyle }}"></video>
+            <div style="position:absolute;top:12px;right:12px;z-index:10">
+              <button onClick="{{ toggleQuality }}" style="background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);color:#fff;font:inherit;font-weight:600;font-size:12.5px;display:flex;align-items:center;gap:6px;cursor:pointer;padding:7px 12px;border-radius:999px" style-hover="background:rgba(0,0,0,0.9);border-color:rgba(255,255,255,0.5)">
+                ⚙ {{ quality }}
+                <span style="font-size:9px;transform:{{ qualityArrow }};transition:transform .2s">▾</span>
+              </button>
+              <sc-if value="{{ qualityOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:100%;right:0;margin-top:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.15);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,0.6);padding:6px;display:flex;flex-direction:column;min-width:110px">
+                  <sc-for list="{{ qualityButtons }}" as="qb" hint-placeholder-count="7">
+                    <button onClick="{{ qb.go }}" style="text-align:left;background:none;border:none;padding:8px 12px;border-radius:6px;font:inherit;font-size:13px;color:{{ qb.fg }};cursor:pointer" style-hover="background:rgba(255,255,255,0.1);color:#ffffff">{{ qb.label }}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+          <span style="font:500 11px 'JetBrains Mono',monospace;color:rgba(255,255,255,0.55);text-align:center;padding:0 16px;position:absolute;display:{{ selected.placeholderDisplay }}">WALLPAPER PLACEHOLDER</span>
+          <div style="position:absolute;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.7);display:{{ selected.playButtonDisplay }};align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(2px)" style-hover="background:rgba(255,255,255,0.3)">
+            <span style="color:#fff;font-size:22px;margin-left:4px">▶</span>
+          </div>
+        </div>
+        <div style="text-align:center;padding:12px;font-size:12px;font-weight:600;letter-spacing:1.2px;color:#a0a0a0;border-top:1px solid rgba(255,255,255,0.08)">PREVIEW VIDEO</div>
+      </div>
+
+      <div style="margin-top:24px">
+        <div style="display:flex;gap:24px;border-bottom:1px solid rgba(255,255,255,0.1);font-size:13.5px;font-weight:600;color:#808080">
+          <button onClick="{{ setTabInfo }}" style="background:none;border:none;padding:12px 0;font:inherit;font-weight:600;font-size:13.5px;cursor:pointer;color:{{ tabInfoFg }};border-bottom:{{ tabInfoBorder }}">Information</button>
+          <button onClick="{{ setTabShare }}" style="background:none;border:none;padding:12px 0;font:inherit;font-weight:600;font-size:13.5px;cursor:pointer;color:{{ tabShareFg }};border-bottom:{{ tabShareBorder }}">Share</button>
+          <button onClick="{{ setTabComments }}" style="background:none;border:none;padding:12px 0;font:inherit;font-weight:600;font-size:13.5px;cursor:pointer;color:{{ tabCommentsFg }};border-bottom:{{ tabCommentsBorder }}">{{ commentCount }} Comments</button>
+        </div>
+
+        <sc-if value="{{ isTabInfo }}" hint-placeholder-val="{{ true }}">
+          <div style="padding-top:22px">
+            <div style="font-size:12.5px;font-weight:600;letter-spacing:1px;color:#808080;margin-bottom:12px">TAGS</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px">
+              <sc-for list="{{ selected.tags }}" as="tag" hint-placeholder-count="5">
+                <span style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);color:#c8c8c8;font-size:12.5px;padding:6px 12px;border-radius:5px">{{ tag }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isTabShare }}" hint-placeholder-val="{{ false }}">
+          <div style="padding-top:22px">
+            <div style="font-size:12.5px;font-weight:600;letter-spacing:1px;color:#808080;margin-bottom:12px">COMPARTIR EN</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+              <a href="https://api.whatsapp.com/send?text={{ shareUrl }}" target="_blank" style="background:#25D366;color:#fff;font-size:13px;font-weight:600;padding:10px 16px;border-radius:6px" style-hover="opacity:0.85">WhatsApp</a>
+              <a href="https://twitter.com/intent/tweet?url={{ shareUrl }}" target="_blank" style="background:#111;border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:13px;font-weight:600;padding:10px 16px;border-radius:6px" style-hover="opacity:0.85">X</a>
+              <a href="https://www.facebook.com/sharer/sharer.php?u={{ shareUrl }}" target="_blank" style="background:#3b5998;color:#fff;font-size:13px;font-weight:600;padding:10px 16px;border-radius:6px" style-hover="opacity:0.85">Facebook</a>
+              <a href="https://www.reddit.com/submit?url={{ shareUrl }}" target="_blank" style="background:#FF4500;color:#fff;font-size:13px;font-weight:600;padding:10px 16px;border-radius:6px" style-hover="opacity:0.85">Reddit</a>
+            </div>
+            <div style="font-size:12.5px;font-weight:600;letter-spacing:1px;color:#808080;margin-bottom:8px">ENLACE DIRECTO</div>
+            <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:10px 12px;color:#c8c8c8;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ shareUrl }}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isTabComments }}" hint-placeholder-val="{{ false }}">
+          <div style="padding-top:22px">
+            <sc-if value="{{ isLoggedIn }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:10px;margin-bottom:18px">
+                <input type="text" placeholder="Escribí un comentario…" value="{{ commentDraft }}" onChange="{{ setCommentDraft }}" style="flex:1;background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:10px 12px;color:#fff;font:inherit;font-size:13.5px" />
+                <button onClick="{{ submitComment }}" style="background:#fff;color:#000;border:none;border-radius:7px;padding:0 18px;font:inherit;font-weight:700;font-size:13px;cursor:pointer">Enviar</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ !isLoggedIn }}" hint-placeholder-val="{{ true }}">
+              <div style="border:1px dashed rgba(255,255,255,0.15);border-radius:8px;padding:16px;text-align:center;color:#a0a0a0;font-size:13.5px;margin-bottom:18px">
+                Iniciá sesión para poder comentar. <button onClick="{{ openLogin }}" style="background:none;border:none;color:#fff;text-decoration:underline;font:inherit;font-size:13.5px;cursor:pointer;padding:0">Iniciar sesión</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasComments }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <sc-for list="{{ selectedComments }}" as="cm" hint-placeholder-count="3">
+                  <div style="border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:12px">
+                    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+                      <span style="font-size:13.5px;font-weight:600;color:#fff">{{ cm.user }}</span>
+                      <span style="font-size:11.5px;color:#808080">{{ cm.date }}</span>
+                    </div>
+                    <div style="font-size:13.5px;color:#c8c8c8;line-height:1.5">{{ cm.text }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ !hasComments }}" hint-placeholder-val="{{ true }}">
+              <div style="text-align:center;color:#707070;font-size:13.5px;font-style:italic;padding:20px 0">Sé el primero en comentar.</div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:17px;font-weight:600;color:#f0f0f0;margin-bottom:16px">{{ selected.title }}</div>
+
+      <button onClick="{{ selected.download }}" style="width:100%;background:#fff;color:#000;border:none;border-radius:8px;padding:14px;font:inherit;font-weight:700;font-size:13.5px;letter-spacing:0.5px;cursor:pointer;margin-bottom:18px" style-hover="background:#d8d8d8">DOWNLOAD WALLPAPER</button>
+
+      <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;padding:12px 16px;font-size:13.5px;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:#909090">Date</span><span style="color:#e0e0e0">{{ selected.date }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 16px;font-size:13.5px;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:#909090">Category</span><span style="color:#e0e0e0">{{ selected.category }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 16px;font-size:13.5px;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:#909090">Resolution</span><span style="color:#e0e0e0">{{ selected.res }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 16px;font-size:13.5px"><span style="color:#909090">File Size</span><span style="color:#e0e0e0">{{ selected.fileSize }}</span></div>
+      </div>
+
+      <div style="margin-top:22px;font-size:13px;font-weight:600;letter-spacing:0.8px;color:#a0a0a0;margin-bottom:12px">RELATED</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ related }}" as="rel" hint-placeholder-count="2">
+          <a href="#" onClick="{{ rel.open }}" style="display:flex;gap:12px;align-items:center;background:#0d0d0d;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;padding:8px;cursor:pointer" style-hover="border-color:rgba(255,255,255,0.4)">
+            <div style="position:relative;width:72px;height:44px;flex-shrink:0;border-radius:5px;overflow:hidden;background:repeating-linear-gradient(135deg,{{ rel.stripeA }} 0 8px,{{ rel.stripeB }} 8px 16px)">
+              <div style="{{ rel.thumbStyle }}"></div>
+              <video ref="{{ rel.videoRefCallback }}" muted="{{ true }}" preload="metadata" playsInline="{{ true }}" style="{{ rel.videoGridStyle }}"></video>
+            </div>
+            <div style="font-size:13px;color:#d0d0d0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ rel.title }}</div>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    resolutionsOpen: false,
+    toastDismissed: false,
+    selectedId: null,
+    mounted: false,
+    page: 1,
+    isAdmin: (typeof localStorage !== "undefined" && localStorage.getItem("ceitowall_admin") === "1"),
+    deletedIds: [],
+    adminModalOpen: false,
+    adminCodeValue: "",
+    adminError: false,
+    confirmDeleteId: null,
+    toastMsg: null,
+    categoriesOpen: false,
+    resolutionsOpen: false,
+    activeCategory: null,
+    activeResolution: null,
+    pendingUpload: null,
+    categoryTagValue: "",
+    titleValue: "",
+    detecting: false,
+    searchQuery: "",
+    playingId: null,
+    quality: "1080p",
+    qualityOpen: false,
+    activeTab: "information",
+    commentsByCard: (typeof localStorage !== "undefined" && JSON.parse(localStorage.getItem("ceitowall_comments") || "{}")) || {},
+    commentDraft: "",
+    authModalOpen: false,
+    authMode: "login",
+    authStep: "form",
+    authEmail: "",
+    authPassword: "",
+    authUsername: "",
+    authError: "",
+    pendingRegistration: null,
+    verifyCode: "",
+    verifyInput: "",
+    verifyError: "",
+    profileModalOpen: false,
+    profileUsernameDraft: "",
+    profilePhotoDraft: null,
+    users: JSON.parse((typeof localStorage !== "undefined" && localStorage.getItem("ceitowall_users")) || "{}"),
+    currentUser: JSON.parse((typeof localStorage !== "undefined" && localStorage.getItem("ceitowall_current_user")) || "null"),
+  };
+
+  setTab = (t) => this.setState({ activeTab: t });
+
+  openAuth = (mode) => this.setState({ authModalOpen: true, authMode: mode, authStep: "form", authEmail: "", authPassword: "", authUsername: "", authError: "" });
+  closeAuth = () => this.setState({ authModalOpen: false });
+  setAuthMode = (mode) => this.setState({ authMode: mode, authError: "" });
+  setAuthEmail = (e) => this.setState({ authEmail: e.target.value });
+  setAuthPassword = (e) => this.setState({ authPassword: e.target.value });
+  setAuthUsername = (e) => this.setState({ authUsername: e.target.value });
+
+  persistUsers(users) {
+    localStorage.setItem("ceitowall_users", JSON.stringify(users));
+  }
+  persistCurrentUser(user) {
+    if (user) localStorage.setItem("ceitowall_current_user", JSON.stringify(user));
+    else localStorage.removeItem("ceitowall_current_user");
+  }
+
+  submitAuth = () => {
+    const email = this.state.authEmail.trim().toLowerCase();
+    const password = this.state.authPassword;
+    if (this.state.authMode === "register") {
+      const username = this.state.authUsername.trim();
+      if (!email || !password || !username) {
+        this.setState({ authError: "Completá todos los campos." });
+        return;
+      }
+      if (this.state.users[email]) {
+        this.setState({ authError: "Ya existe una cuenta con ese correo." });
+        return;
+      }
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      this.setState({
+        authStep: "verify",
+        authError: "",
+        pendingRegistration: { email, password, username },
+        verifyCode: code,
+        verifyInput: "",
+      });
+      this.showToast("Código de verificación (simulado, no se envía correo real): " + code);
+    } else {
+      const user = this.state.users[email];
+      if (!user || user.password !== password) {
+        this.setState({ authError: "Correo o contraseña incorrectos." });
+        return;
+      }
+      this.persistCurrentUser(user);
+      this.setState({ currentUser: user, authModalOpen: false });
+    }
+  };
+
+  setVerifyInput = (e) => this.setState({ verifyError: "", verifyInput: e.target.value });
+  submitVerify = () => {
+    if (this.state.verifyInput.trim() !== this.state.verifyCode) {
+      this.setState({ verifyError: "Código incorrecto." });
+      return;
+    }
+    const { email, password, username } = this.state.pendingRegistration;
+    const user = { email, password, username, photo: null };
+    const users = { ...this.state.users, [email]: user };
+    this.persistUsers(users);
+    this.persistCurrentUser(user);
+    this.setState({ users, currentUser: user, authModalOpen: false, authStep: "form", pendingRegistration: null });
+  };
+  backToAuthForm = () => this.setState({ authStep: "form" });
+
+  googleLogin = () => {
+    const email = "usuario@gmail.com";
+    let user = this.state.users[email];
+    if (!user) {
+      user = { email, password: null, username: "Usuario de Google", photo: null, isGoogle: true };
+      const users = { ...this.state.users, [email]: user };
+      this.persistUsers(users);
+    }
+    this.persistCurrentUser(user);
+    this.setState({ currentUser: user, authModalOpen: false });
+  };
+
+  logout = () => {
+    this.persistCurrentUser(null);
+    this.setState({ currentUser: null });
+  };
+
+  openProfile = () => this.setState({ profileModalOpen: true, profileUsernameDraft: this.state.currentUser ? this.state.currentUser.username : "", profilePhotoDraft: null });
+  closeProfile = () => this.setState({ profileModalOpen: false });
+  setProfileUsername = (e) => this.setState({ profileUsernameDraft: e.target.value });
+  setProfilePhoto = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => this.setState({ profilePhotoDraft: reader.result });
+    reader.readAsDataURL(file);
+  };
+  saveProfile = () => {
+    const cu = this.state.currentUser;
+    if (!cu) return;
+    const updated = {
+      ...cu,
+      username: this.state.profileUsernameDraft.trim() || cu.username,
+      photo: this.state.profilePhotoDraft || cu.photo,
+    };
+    const users = { ...this.state.users, [cu.email]: updated };
+    this.persistUsers(users);
+    this.persistCurrentUser(updated);
+    this.setState({ users, currentUser: updated, profileModalOpen: false });
+  };
+  setCommentDraft = (e) => this.setState({ commentDraft: e.target.value });
+  addComment = (cardId) => {
+    const text = this.state.commentDraft.trim();
+    if (!text || !this.state.currentUser) return;
+    this.setState(s => {
+      const list = s.commentsByCard[cardId] || [];
+      const updated = { ...s.commentsByCard, [cardId]: [...list, { user: s.currentUser, text, date: this.todayStr() }] };
+      localStorage.setItem("ceitowall_comments", JSON.stringify(updated));
+      return { commentsByCard: updated, commentDraft: "" };
+    });
+  };
+
+  QUALITIES = ["144p", "360p", "480p", "720p", "1080p", "2K", "4K"];
+  QUALITY_BLUR = { "144p": 3.5, "360p": 2, "480p": 1.1, "720p": 0.4, "1080p": 0, "2K": 0, "4K": 0 };
+
+  toggleQuality = () => this.setState(s => ({ qualityOpen: !s.qualityOpen }));
+  setQuality = (q) => this.setState({ quality: q, qualityOpen: false });
+
+  videoElsById = {};
+
+  togglePlay = (id) => {
+    const el = this.videoElsById[id];
+    if (!el) return;
+    const playingNow = !el.paused;
+    Object.keys(this.videoElsById).forEach(otherId => {
+      const otherEl = this.videoElsById[otherId];
+      if (otherEl && otherId !== id && !otherEl.paused) {
+        otherEl.pause();
+        otherEl.currentTime = 0;
+      }
+    });
+    if (playingNow) {
+      el.pause();
+      this.setState({ playingId: null });
+    } else {
+      el.play().catch(() => {});
+      this.setState({ playingId: id });
+    }
+  };
+
+  setSearchQuery = (e) => this.setState({ searchQuery: e.target.value, page: 1 });
+
+  deleteCard = (id) => this.setState({ confirmDeleteId: id });
+  cancelDelete = () => this.setState({ confirmDeleteId: null });
+  confirmDelete = () => {
+    const id = this.state.confirmDeleteId;
+    this.deleteUploadRecord(id).catch(() => {});
+    this.setState(s => ({ deletedIds: [...s.deletedIds, id], confirmDeleteId: null }));
+  };
+
+  showToast = (msg) => {
+    this.setState({ toastMsg: msg });
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => this.setState({ toastMsg: null }), 2600);
+  };
+
+  ADMIN_CODE = "Cw!9xQ2#vRz7$mK";
+
+  unlockAdmin = () => {
+    if (this.state.isAdmin) {
+      localStorage.removeItem("ceitowall_admin");
+      this.setState({ isAdmin: false });
+      this.showToast("Modo administrador desactivado");
+      return;
+    }
+    this.setState({ adminModalOpen: true, adminCodeValue: "", adminError: false });
+  };
+
+  closeAdminModal = () => this.setState({ adminModalOpen: false });
+  setAdminCodeValue = (e) => this.setState({ adminCodeValue: e.target.value, adminError: false });
+
+  submitAdminCode = () => {
+    if (this.state.adminCodeValue === this.ADMIN_CODE) {
+      localStorage.setItem("ceitowall_admin", "1");
+      this.setState({ isAdmin: true, adminModalOpen: false });
+      this.showToast("Modo administrador activado");
+    } else {
+      this.setState({ adminError: true });
+    }
+  };
+
+  PAGE_SIZE = 16;
+  goToPage = (p) => this.setState({ page: p });
+  nextPage = () => this.setState(s => ({ page: s.page + 1 }));
+
+  componentDidMount() {
+    this.setState({ mounted: true });
+    this.loadStoredUploads();
+  }
+
+  DB_NAME = "ceitowall_db";
+  STORE_NAME = "uploads";
+
+  openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(this.DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        req.result.createObjectStore(this.STORE_NAME, { keyPath: "id" });
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async saveUploadRecord(record) {
+    const db = await this.openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(this.STORE_NAME, "readwrite");
+      tx.objectStore(this.STORE_NAME).put(record);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async deleteUploadRecord(id) {
+    const db = await this.openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(this.STORE_NAME, "readwrite");
+      tx.objectStore(this.STORE_NAME).delete(id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async loadStoredUploads() {
+    try {
+      const db = await this.openDB();
+      const records = await new Promise((resolve, reject) => {
+        const tx = db.transaction(this.STORE_NAME, "readonly");
+        const req = tx.objectStore(this.STORE_NAME).getAll();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+      records.sort((a, b) => b.createdAt - a.createdAt);
+      this.uploadedCards = records.map(r => ({ ...r, mediaUrl: URL.createObjectURL(r.blob) }));
+      this.forceUpdate();
+    } catch (err) {
+      console.warn("No se pudieron cargar los wallpapers guardados", err);
+    }
+  }
+
+  toggleCategories = () => this.setState(s => ({ categoriesOpen: !s.categoriesOpen }));
+  setActiveCategory = (c) => this.setState({ activeCategory: c, categoriesOpen: false, page: 1 });
+  goHome = (e) => { if (e) e.preventDefault(); this.setState({ selectedId: null, activeCategory: null, activeResolution: null, searchQuery: "", page: 1 }); };
+  setActiveResolution = (r) => this.setState({ activeResolution: r, resolutionsOpen: false, page: 1 });
+
+  PRESET_CATEGORIES = ["Fantasy", "Anime", "Vehicle", "Móvil Wallpaper", "Games", "Movies", "Abstract"];
+
+  hashStr(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+    return h;
+  }
+  varyOrder(cards) {
+    return [...cards].sort((a, b) => this.hashStr(a.id) - this.hashStr(b.id));
+  }
+  toggleResolutions = () => this.setState(s => ({ resolutionsOpen: !s.resolutionsOpen }));
+
+  resolutions = [
+    "1280×720","1366×768","1920×1080","2560×1080","2560×1440 – 2K","2560×1600",
+    "2560×1700","3440×1440","3840×2160 – 4K","3840×2400","5120×1440","5760×1080",
+    "7680×2160 – DUAL 4K"
+  ];
+
+  cardData = [];
+
+  uploadedCards = [];
+  fileInputRef = React.createRef();
+  profilePhotoInputRef = React.createRef();
+  triggerProfilePhoto = () => { if (this.profilePhotoInputRef.current) this.profilePhotoInputRef.current.click(); };
+
+  toggleResolutions = () => this.setState(s => ({ resolutionsOpen: !s.resolutionsOpen }));
+  dismissToast = () => this.setState({ toastDismissed: true });
+  openDetail = (id) => this.setState({ selectedId: id });
+  backToGrid = () => this.setState({ selectedId: null });
+
+  triggerUpload = () => { if (this.fileInputRef.current) this.fileInputRef.current.click(); };
+
+  formatSize = (bytes) => (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  todayStr = () => new Date().toISOString().slice(0, 10);
+
+  DAILY_DOWNLOAD_LIMIT = 10;
+  BLANK_PIXEL = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
+  getDownloadRecord() {
+    const raw = JSON.parse(localStorage.getItem("ceitowall_downloads") || "null");
+    if (!raw || raw.date !== this.todayStr()) return { date: this.todayStr(), count: 0 };
+    return raw;
+  }
+
+  registerDownload() {
+    const rec = this.getDownloadRecord();
+    rec.count += 1;
+    localStorage.setItem("ceitowall_downloads", JSON.stringify(rec));
+  }
+
+  canDownload() {
+    if (this.state.currentUser) return true;
+    return this.getDownloadRecord().count < this.DAILY_DOWNLOAD_LIMIT;
+  }
+
+  addUploadedCard = (base) => {
+    this.uploadedCards = [base, ...this.uploadedCards];
+    this.forceUpdate();
+  };
+
+  handleFileChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const isVideo = file.type.startsWith("video");
+    const name = file.name.replace(/\.[^/.]+$/, "");
+    const common = {
+      id: "u" + Date.now(),
+      title: name,
+      votes: 0,
+      fileSize: this.formatSize(file.size),
+      date: this.todayStr(),
+      mediaUrl: url,
+      fileName: file.name,
+      isVideo: isVideo,
+      hasMedia: true,
+      stripeA: "#2a2a2a",
+      stripeB: "#1a1a1a",
+      description: name + " was uploaded to Ceito Wall.",
+      blob: file,
+      createdAt: Date.now(),
+    };
+    const finish = (res, frameDataUrl) => {
+      this.setState({ pendingUpload: { ...common, res }, categoryTagValue: "", titleValue: name, detecting: true });
+      if (frameDataUrl) this.detectContent(frameDataUrl);
+      else this.setState({ detecting: false });
+    };
+    if (isVideo) {
+      const v = document.createElement("video");
+      v.preload = "metadata";
+      v.crossOrigin = "anonymous";
+      v.muted = true;
+      v.onloadedmetadata = () => {
+        v.currentTime = Math.min(1, (v.duration || 1) / 2);
+      };
+      v.onseeked = () => {
+        let frame = null;
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = v.videoWidth;
+          canvas.height = v.videoHeight;
+          canvas.getContext("2d").drawImage(v, 0, 0);
+          frame = canvas.toDataURL("image/jpeg", 0.7);
+        } catch (err) {
+          frame = null;
+        }
+        finish(v.videoWidth + "×" + v.videoHeight, frame);
+      };
+      v.src = url;
+    } else {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        let frame = null;
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          canvas.getContext("2d").drawImage(img, 0, 0);
+          frame = canvas.toDataURL("image/jpeg", 0.7);
+        } catch (err) {
+          frame = null;
+        }
+        finish(img.width + "×" + img.height, frame);
+      };
+      img.src = url;
+    }
+    e.target.value = "";
+  };
+
+  async detectContent(dataUrl) {
+    try {
+      const base64 = dataUrl.split(",")[1];
+      const text = await window.claude.complete({
+        messages: [{
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
+            { type: "text", text: "Mirá esta imagen de un wallpaper. Respondé SOLO en este formato exacto, sin explicaciones: Título corto (3-6 palabras) | Categoría (una palabra: Anime, Fantasy, Vehicle, Games, Movies, Abstract, u otra si aplica mejor)." },
+          ],
+        }],
+        max_tokens: 60,
+      });
+      const [titlePart, catPart] = String(text).split("|").map(s => s && s.trim());
+      this.setState(s => ({
+        detecting: false,
+        titleValue: titlePart || s.titleValue,
+        categoryTagValue: catPart || s.categoryTagValue,
+      }));
+    } catch (err) {
+      this.setState({ detecting: false });
+      this.showToast("No se pudo detectar automáticamente, completá los datos a mano.");
+    }
+  }
+
+  capitalize = (str) => str.length ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+  setTitleValue = (e) => this.setState({ titleValue: this.capitalize(e.target.value) });
+
+  setCategoryTagValue = (e) => this.setState({ categoryTagValue: this.capitalize(e.target.value) });
+  cancelPendingUpload = () => this.setState({ pendingUpload: null });
+
+  confirmPendingUpload = () => {
+    const tag = this.state.categoryTagValue.trim() || "Sin categoría";
+    const title = this.state.titleValue.trim() || "Sin título";
+    const base = this.state.pendingUpload;
+    if (!base) return;
+    const record = { ...base, title, category: tag, tags: [tag] };
+    this.addUploadedCard(record);
+    this.saveUploadRecord(record).catch(err => console.warn("No se pudo guardar el wallpaper", err));
+    this.setState({ pendingUpload: null });
+  };
+
+  titleWords(title) {
+    return (title || "").toLowerCase().split(/[^a-z0-9áéíóúñ]+/i).filter(w => w.length > 2);
+  }
+
+  computeRelated(selected, allCards) {
+    const others = allCards.filter(c => c.id !== selected.id);
+    const selWords = new Set(this.titleWords(selected.title));
+    const selTags = new Set([selected.category, ...(selected.tags || [])].filter(Boolean).map(t => t.toLowerCase()));
+
+    const scored = others.map(c => {
+      let score = 0;
+      const cTags = new Set([c.category, ...(c.tags || [])].filter(Boolean).map(t => t.toLowerCase()));
+      cTags.forEach(t => { if (selTags.has(t)) score += 5; });
+      this.titleWords(c.title).forEach(w => { if (selWords.has(w)) score += 1; });
+      return { card: c, score };
+    });
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 2).map(s => s.card);
+  }
+
+  buildCards() {
+    const allCardData = [...this.uploadedCards, ...this.cardData].filter(c => !this.state.deletedIds.includes(c.id));
+    return allCardData.map((c, i) => {
+      const hasMedia = !!c.hasMedia;
+      const isVideo = !!c.isVideo;
+      const showVideo = hasMedia && isVideo;
+      const showImg = hasMedia && !isVideo;
+      return {
+        ...c,
+        hasMedia,
+        isVideo,
+        showVideo,
+        thumbStyle: showImg
+          ? "position:absolute;inset:0;background-image:url(" + c.mediaUrl + ");background-size:cover;background-position:center"
+          : "display:none",
+        imgBgStyle: showImg
+          ? "position:absolute;inset:0;background-image:url(" + c.mediaUrl + ");background-size:contain;background-position:center;background-repeat:no-repeat"
+          : "display:none",
+        videoStyle: showVideo
+          ? "width:100%;height:100%;object-fit:contain;background:#000"
+          : "display:none",
+        videoGridStyle: showVideo
+          ? "position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
+          : "display:none",
+        playIconStyle: showVideo && this.state.playingId !== c.id
+          ? "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"
+          : "display:none",
+        progressTrackStyle: showVideo
+          ? "position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,0.2)"
+          : "display:none",
+        videoRefCallback: (el) => {
+          if (!el) return;
+          this.videoElsById[c.id] = el;
+          if (showVideo) {
+            if (el.getAttribute("src") !== c.mediaUrl) el.setAttribute("src", c.mediaUrl);
+            if (!el.dataset.wired) {
+              el.dataset.wired = "1";
+              el.addEventListener("timeupdate", () => {
+                const fill = el.parentElement.querySelector('[data-progress-fill="' + c.id + '"]');
+                if (fill && el.duration) fill.style.width = (el.currentTime / el.duration * 100) + "%";
+              });
+              el.addEventListener("ended", () => {
+                el.pause();
+                el.currentTime = 0;
+                const fill = el.parentElement.querySelector('[data-progress-fill="' + c.id + '"]');
+                if (fill) fill.style.width = "0%";
+                this.setState({ playingId: null });
+              });
+            }
+          } else if (el.hasAttribute("src")) {
+            el.removeAttribute("src");
+          }
+        },
+        placeholderDisplay: hasMedia ? "none" : "flex",
+        playButtonDisplay: hasMedia ? "none" : "flex",
+        detailVideoRef: (el) => {
+          if (!el) return;
+          if (showVideo) {
+            if (el.getAttribute("src") !== c.mediaUrl) el.setAttribute("src", c.mediaUrl);
+          } else if (el.hasAttribute("src")) {
+            el.removeAttribute("src");
+          }
+        },
+        open: (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } this.openDetail(c.id); },
+        togglePlay: (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } if (showVideo) this.togglePlay(c.id); },
+        remove: (e) => { e.preventDefault(); e.stopPropagation(); this.deleteCard(c.id); },
+        download: hasMedia ? () => {
+          if (!this.canDownload()) {
+            this.showToast("Alcanzaste el límite de 10 descargas diarias. Iniciá sesión para descargas ilimitadas.");
+            return;
+          }
+          this.registerDownload();
+          const slug = (c.title || "wallpaper")
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "") || "wallpaper";
+          const ext = isVideo ? "mp4" : ((c.fileName || "").split(".").pop() || "jpg");
+          const a = document.createElement("a");
+          a.href = c.mediaUrl;
+          a.download = slug + "-ceitowalls-com." + ext;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        } : () => this.showToast("Subí un wallpaper primero para poder descargarlo."),
+      };
+    });
+  }
+
+  renderVals() {
+    const allCards = this.buildCards();
+    const uploadedCategories = [...new Set(allCards.map(c => c.category).filter(Boolean))];
+    const extraCategories = uploadedCategories.filter(c => !this.PRESET_CATEGORIES.includes(c));
+    const activeCategory = this.state.activeCategory;
+    const activeResolution = this.state.activeResolution;
+    const query = this.state.searchQuery.trim().toLowerCase();
+    let cards = activeCategory ? allCards.filter(c => c.category === activeCategory) : this.varyOrder(allCards);
+    if (activeResolution) cards = cards.filter(c => c.res === activeResolution);
+    if (query) {
+      cards = cards.filter(c => {
+        const haystack = [c.title, c.category, ...(c.tags || [])].join(" ").toLowerCase();
+        return haystack.includes(query);
+      });
+    }
+    const selected = this.state.selectedId !== null ? allCards.find(c => c.id === this.state.selectedId) : null;
+    const related = selected ? this.computeRelated(selected, allCards) : [];
+
+    const categoryButtons = [{ label: "Inicio", isActive: !activeCategory, go: () => this.setActiveCategory(null) }]
+      .concat(this.PRESET_CATEGORIES.concat(extraCategories).map(c => ({ label: c, isActive: c === activeCategory, go: () => this.setActiveCategory(c) })));
+
+    const uploadedResolutions = [...new Set(allCards.map(c => c.res).filter(Boolean))];
+    const extraResolutions = uploadedResolutions.filter(r => !this.resolutions.includes(r));
+    const resolutionButtons = [{ label: "Todas", isActive: !activeResolution, go: () => this.setActiveResolution(null) }]
+      .concat(this.resolutions.concat(extraResolutions).map(r => ({ label: r, isActive: r === activeResolution, go: () => this.setActiveResolution(r) })));
+
+    const totalPages = Math.max(1, Math.ceil(cards.length / this.PAGE_SIZE));
+    const page = Math.min(this.state.page, totalPages);
+    const pagedCards = cards.slice((page - 1) * this.PAGE_SIZE, page * this.PAGE_SIZE);
+    const showPagination = totalPages > 1;
+
+    let pageNumbers = [];
+    if (totalPages <= 5) {
+      pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+    } else {
+      pageNumbers = [1, 2, 3, "…", totalPages];
+    }
+    const pageButtons = pageNumbers.map(n => {
+      const isActive = n === page;
+      return {
+        label: n,
+        isEllipsis: n === "…",
+        isActive,
+        bg: isActive ? "#ffffff" : "#0d0d0d",
+        fg: isActive ? "#000000" : "#c8c8c8",
+        go: n === "…" ? null : () => this.goToPage(n),
+      };
+    });
+    const hasNextPage = page < totalPages;
+
+    return {
+      isAdmin: this.state.isAdmin,
+      unlockAdmin: this.unlockAdmin,
+      goHome: this.goHome,
+      adminIconColor: this.state.isAdmin ? "#4ade80" : "#808080",
+      hasNoCards: cards.length === 0,
+      adminModalOpen: this.state.adminModalOpen,
+      closeAdminModal: this.closeAdminModal,
+      adminCodeValue: this.state.adminCodeValue,
+      setAdminCodeValue: this.setAdminCodeValue,
+      submitAdminCode: this.submitAdminCode,
+      adminError: this.state.adminError,
+      confirmDeleteId: this.state.confirmDeleteId,
+      showConfirmDelete: this.state.confirmDeleteId !== null,
+      cancelDelete: this.cancelDelete,
+      confirmDelete: this.confirmDelete,
+      toastMsg: this.state.toastMsg,
+      showToastBox: this.state.toastMsg !== null,
+      quality: this.state.quality,
+      qualityOpen: this.state.qualityOpen,
+      toggleQuality: this.toggleQuality,
+      qualityArrow: this.state.qualityOpen ? "rotate(180deg)" : "rotate(0deg)",
+      qualityButtons: this.QUALITIES.map(q => ({
+        label: q,
+        isActive: q === this.state.quality,
+        fg: q === this.state.quality ? "#ffffff" : "#c0c0c0",
+        go: () => this.setQuality(q),
+      })),
+      videoFilterStyle: "filter:blur(" + (this.QUALITY_BLUR[this.state.quality] || 0) + "px)",
+      activeTab: this.state.activeTab,
+      setTabInfo: () => this.setTab("information"),
+      setTabShare: () => this.setTab("share"),
+      setTabComments: () => this.setTab("comments"),
+      isTabInfo: this.state.activeTab === "information",
+      isTabShare: this.state.activeTab === "share",
+      isTabComments: this.state.activeTab === "comments",
+      tabInfoFg: this.state.activeTab === "information" ? "#fff" : "#808080",
+      tabInfoBorder: this.state.activeTab === "information" ? "2px solid #fff" : "2px solid transparent",
+      tabShareFg: this.state.activeTab === "share" ? "#fff" : "#808080",
+      tabShareBorder: this.state.activeTab === "share" ? "2px solid #fff" : "2px solid transparent",
+      tabCommentsFg: this.state.activeTab === "comments" ? "#fff" : "#808080",
+      tabCommentsBorder: this.state.activeTab === "comments" ? "2px solid #fff" : "2px solid transparent",
+      currentUser: this.state.currentUser ? this.state.currentUser.username : null,
+      currentUserPhoto: (this.state.currentUser && this.state.currentUser.photo) || this.BLANK_PIXEL,
+      hasProfilePhoto: !!(this.state.currentUser && this.state.currentUser.photo),
+      avatarImgDisplay: (this.state.currentUser && this.state.currentUser.photo) ? "block" : "none",
+      profilePreviewUrl: this.state.profilePhotoDraft || (this.state.currentUser && this.state.currentUser.photo) || this.BLANK_PIXEL,
+      profileImgDisplay: (this.state.profilePhotoDraft || (this.state.currentUser && this.state.currentUser.photo)) ? "block" : "none",
+      currentUserInitial: this.state.currentUser ? this.state.currentUser.username.charAt(0).toUpperCase() : "",
+      profileAvatarBg: (this.state.currentUser && this.state.currentUser.photo) ? "url(" + this.state.currentUser.photo + ")" : "none",
+      isLoggedIn: !!this.state.currentUser,
+      openLogin: () => this.openAuth("login"),
+      logout: this.logout,
+      openProfile: this.openProfile,
+      profileModalOpen: this.state.profileModalOpen,
+      closeProfile: this.closeProfile,
+      profileUsernameDraft: this.state.profileUsernameDraft,
+      setProfileUsername: this.setProfileUsername,
+      triggerProfilePhoto: this.triggerProfilePhoto,
+      profilePhotoInputRef: this.profilePhotoInputRef,
+      setProfilePhoto: this.setProfilePhoto,
+      saveProfile: this.saveProfile,
+      authModalOpen: this.state.authModalOpen,
+      authMode: this.state.authMode,
+      isAuthForm: this.state.authStep === "form",
+      isAuthVerify: this.state.authStep === "verify",
+      verifyInput: this.state.verifyInput,
+      setVerifyInput: this.setVerifyInput,
+      submitVerify: this.submitVerify,
+      backToAuthForm: this.backToAuthForm,
+      verifyError: this.state.verifyError,
+      hasVerifyError: !!this.state.verifyError,
+      verifyEmailLabel: this.state.pendingRegistration ? this.state.pendingRegistration.email : "",
+      isAuthLogin: this.state.authMode === "login",
+      isAuthRegister: this.state.authMode === "register",
+      authLoginFg: this.state.authMode === "login" ? "#fff" : "#808080",
+      authLoginBorder: this.state.authMode === "login" ? "2px solid #fff" : "2px solid transparent",
+      authRegisterFg: this.state.authMode === "register" ? "#fff" : "#808080",
+      authRegisterBorder: this.state.authMode === "register" ? "2px solid #fff" : "2px solid transparent",
+      setAuthModeLogin: () => this.setAuthMode("login"),
+      setAuthModeRegister: () => this.setAuthMode("register"),
+      closeAuth: this.closeAuth,
+      authEmail: this.state.authEmail,
+      setAuthEmail: this.setAuthEmail,
+      authPassword: this.state.authPassword,
+      setAuthPassword: this.setAuthPassword,
+      authUsername: this.state.authUsername,
+      setAuthUsername: this.setAuthUsername,
+      authError: this.state.authError,
+      hasAuthError: !!this.state.authError,
+      submitAuth: this.submitAuth,
+      authSubmitLabel: this.state.authMode === "register" ? "Crear cuenta" : "Entrar",
+      googleLogin: this.googleLogin,
+      profilePreviewBg: this.state.profilePhotoDraft
+        ? "url(" + this.state.profilePhotoDraft + ")"
+        : (this.state.currentUser && this.state.currentUser.photo ? "url(" + this.state.currentUser.photo + ")" : "none"),
+      profileInitialFallback: (this.state.profilePhotoDraft || (this.state.currentUser && this.state.currentUser.photo))
+        ? ""
+        : (this.state.currentUser ? this.state.currentUser.username.charAt(0).toUpperCase() : ""),
+      profilePlusDisplay: (this.state.profilePhotoDraft || (this.state.currentUser && this.state.currentUser.photo)) ? "none" : "block",
+      commentDraft: this.state.commentDraft,
+      setCommentDraft: this.setCommentDraft,
+      selectedComments: selected ? (this.state.commentsByCard[selected.id] || []) : [],
+      hasComments: selected ? ((this.state.commentsByCard[selected.id] || []).length > 0) : false,
+      commentCount: selected ? (this.state.commentsByCard[selected.id] || []).length : 0,
+      submitComment: selected ? () => this.addComment(selected.id) : () => {},
+      shareUrl: (typeof location !== "undefined" ? location.href : ""),
+      mounted: this.state.mounted,
+      pagedCards: pagedCards,
+      showPagination: showPagination,
+      pageButtons: pageButtons,
+      hasNextPage: hasNextPage,
+      nextFg: hasNextPage ? "#f0f0f0" : "#555555",
+      nextCursor: hasNextPage ? "pointer" : "default",
+      nextPage: this.nextPage,
+      fileInputRef: this.fileInputRef,
+      triggerUpload: this.triggerUpload,
+      handleFileChange: this.handleFileChange,
+      categoriesOpen: this.state.categoriesOpen,
+      toggleCategories: this.toggleCategories,
+      categoriesArrow: this.state.categoriesOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+      categoryButtons: categoryButtons,
+      resolutionsOpen: this.state.resolutionsOpen,
+      toggleResolutions: this.toggleResolutions,
+      resolutionsArrow: this.state.resolutionsOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+      resolutionButtons: resolutionButtons,
+      searchQuery: this.state.searchQuery,
+      setSearchQuery: this.setSearchQuery,
+      pendingUpload: this.state.pendingUpload,
+      showUploadModal: this.state.pendingUpload !== null,
+      categoryTagValue: this.state.categoryTagValue,
+      setCategoryTagValue: this.setCategoryTagValue,
+      titleValue: this.state.titleValue,
+      setTitleValue: this.setTitleValue,
+      detecting: this.state.detecting,
+      cancelPendingUpload: this.cancelPendingUpload,
+      confirmPendingUpload: this.confirmPendingUpload,
+      cards: cards,
+      toastDismissed: this.state.toastDismissed,
+      dismissToast: this.dismissToast,
+      isListView: this.state.selectedId === null,
+      isDetailView: this.state.selectedId !== null,
+      selected: selected,
+      related: related,
+      backToGrid: this.backToGrid,
+    };
+  }
+}
+</script>
+</body>
+</html>
