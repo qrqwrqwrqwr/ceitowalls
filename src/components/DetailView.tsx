@@ -115,7 +115,7 @@ export function DetailView({
         onResolutionChange={() => router.push("/")}
       />
 
-      <div className="grid grid-cols-[1fr_340px] items-start gap-6 px-[30px] pb-[60px] pt-[26px]">
+      <div className="grid grid-cols-1 items-start gap-6 px-4 pb-10 pt-5 sm:px-[30px] sm:pb-[60px] sm:pt-[26px] lg:grid-cols-[1fr_340px]">
         <div>
           <button
             onClick={() => router.push("/")}

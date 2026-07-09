@@ -69,7 +69,7 @@ export function GridView({ wallpapers }: { wallpapers: Wallpaper[] }) {
         }}
       />
 
-      <main className="px-[30px] pb-[140px] pt-[26px]">
+      <main className="px-4 pb-[100px] pt-5 sm:px-[30px] sm:pb-[140px] sm:pt-[26px]">
         <div className="mb-[18px] flex items-center justify-between">
           <div className="text-[13px] font-semibold tracking-[1.2px] text-[#a88888]">LATEST VIDEOS</div>
           <div className="flex items-center gap-2.5">{profile?.is_admin && <UploadButton />}</div>
@@ -78,7 +78,7 @@ export function GridView({ wallpapers }: { wallpapers: Wallpaper[] }) {
         {pageItems.length === 0 ? (
           <div className="py-20 text-center text-[#707070]">No se encontraron wallpapers.</div>
         ) : (
-          <div className="grid grid-cols-3 gap-[22px]">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-[22px] lg:grid-cols-3">
             {pageItems.map((w) => (
               <WallpaperCard key={w.id} wallpaper={w} isAdmin={isAdmin} onDeleteRequest={setDeleteTarget} />
             ))}

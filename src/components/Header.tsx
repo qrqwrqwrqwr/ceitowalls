@@ -38,7 +38,7 @@ export function Header({
 
   return (
     <>
-    <header className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-white/10 bg-black/90 px-4 py-3 backdrop-blur-sm sm:gap-4 sm:px-7 sm:py-3.5 md:flex-nowrap md:gap-7">
+    <header className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-white/10 bg-black/90 px-4 py-3 backdrop-blur-sm sm:gap-4 sm:px-7 sm:py-3.5 lg:flex-nowrap lg:gap-7">
       <button onClick={goHome} className="flex flex-shrink-0 cursor-pointer items-center gap-2.5">
         <div className="text-[18px] font-bold leading-none tracking-[0.3px] sm:text-[20px]">
           <span className="text-[#f2f3f5]">CEITO</span>
@@ -46,7 +46,7 @@ export function Header({
         </div>
       </button>
 
-      <nav className="hidden items-center gap-[22px] text-[14.5px] font-medium text-[#b7bac2] md:flex">
+      <nav className="order-3 flex w-full flex-wrap items-center gap-2 text-[14.5px] font-medium text-[#b7bac2] lg:order-none lg:w-auto lg:flex-nowrap lg:gap-[22px]">
         <div className="relative">
           <button
             onClick={() => setCategoriesOpen((v) => !v)}
@@ -144,7 +144,7 @@ export function Header({
         </div>
       </nav>
 
-      <div className="order-last flex w-full min-w-0 items-center gap-2.5 rounded-lg border border-white/12 bg-[#0d0d0d] px-3.5 py-2 sm:order-none sm:ml-auto sm:w-[200px] lg:w-[280px]">
+      <div className="order-last flex w-full min-w-0 items-center gap-2.5 rounded-lg border border-white/12 bg-[#0d0d0d] px-3.5 py-2 lg:order-none lg:ml-auto lg:w-[280px]">
         <span className="text-sm text-[#7a7a7a]">⌕</span>
         <input
           value={searchQuery}
@@ -193,7 +193,7 @@ export function Header({
       ) : (
         <button
           onClick={() => setAuthModalOpen(true)}
-          className="ml-auto rounded-full bg-white px-4 py-2.5 text-[13px] font-bold text-black hover:bg-[#d8d8d8] sm:ml-0"
+          className="ml-auto rounded-full bg-white px-4 py-2.5 text-[13px] font-bold text-black hover:bg-[#d8d8d8] lg:ml-0"
         >
           INICIAR SESIÓN
         </button>
