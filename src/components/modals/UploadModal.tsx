@@ -89,14 +89,18 @@ export function UploadButton() {
     if (!pending || !profile) return;
     setSaving(true);
     const supabase = createClient();
-    const path = `${profile.id}/${Date.now()}-${pending.file.name}`;
-    const { error: uploadError } = await supabase.storage.from("wallpapers").upload(path, pending.file);
-    if (uploadError) {
-      showToast(`Error al subir: ${uploadError.message}`);
+
+    const uploadForm = new FormData();
+    uploadForm.append("file", pending.file);
+    uploadForm.append("type", "wallpaper");
+    const uploadRes = await fetch("/api/upload", { method: "POST", body: uploadForm });
+    const uploadJson = await uploadRes.json();
+    if (!uploadRes.ok) {
+      showToast(`Error al subir: ${uploadJson.error}`);
       setSaving(false);
       return;
     }
-    const mediaUrl = supabase.storage.from("wallpapers").getPublicUrl(path).data.publicUrl;
+    const mediaUrl: string = uploadJson.url;
 
     const { error: insertError } = await supabase.from("wallpapers").insert({
       title: title || pending.file.name,

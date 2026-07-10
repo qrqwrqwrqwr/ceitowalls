@@ -40,12 +40,13 @@ export function ProfileModal({ open, onClose }: { open: boolean; onClose: () => 
     let photoUrl = profile.photo_url;
 
     if (file) {
-      const path = `avatars/${profile.id}-${Date.now()}`;
-      const { error: uploadError } = await supabase.storage.from("wallpapers").upload(path, file, {
-        upsert: true,
-      });
-      if (!uploadError) {
-        photoUrl = supabase.storage.from("wallpapers").getPublicUrl(path).data.publicUrl;
+      const uploadForm = new FormData();
+      uploadForm.append("file", file);
+      uploadForm.append("type", "avatar");
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: uploadForm });
+      const uploadJson = await uploadRes.json();
+      if (uploadRes.ok) {
+        photoUrl = uploadJson.url;
       }
     }
 
