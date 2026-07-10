@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import type { Wallpaper } from "@/lib/types";
 
 let currentlyPlaying: HTMLVideoElement | null = null;
+let currentlyPlayingStop: (() => void) | null = null;
+
+function isGifUrl(url: string) {
+  return /\.gif(\?|$)/i.test(url);
+}
 
 export function WallpaperCard({
   wallpaper,
@@ -19,6 +24,19 @@ export function WallpaperCard({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [gifPlaying, setGifPlaying] = useState(false);
+
+  const isGif = wallpaper.media_type === "image" && isGifUrl(wallpaper.media_url);
+
+  function stopVideo() {
+    const video = videoRef.current;
+    if (!video) return;
+    video.pause();
+    video.currentTime = 0;
+    setPlaying(false);
+    setProgress(0);
+    if (currentlyPlaying === video) currentlyPlaying = null;
+  }
 
   function togglePlay(e: React.MouseEvent) {
     e.stopPropagation();
@@ -26,19 +44,14 @@ export function WallpaperCard({
     if (!video) return;
 
     if (playing) {
-      video.pause();
-      video.currentTime = 0;
-      setPlaying(false);
-      setProgress(0);
-      if (currentlyPlaying === video) currentlyPlaying = null;
+      stopVideo();
+      if (currentlyPlayingStop === stopVideo) currentlyPlayingStop = null;
       return;
     }
 
-    if (currentlyPlaying && currentlyPlaying !== video) {
-      currentlyPlaying.pause();
-      currentlyPlaying.currentTime = 0;
-    }
+    if (currentlyPlayingStop) currentlyPlayingStop();
     currentlyPlaying = video;
+    currentlyPlayingStop = stopVideo;
     video.currentTime = 0;
     video.play();
     setPlaying(true);
@@ -61,21 +74,63 @@ export function WallpaperCard({
     setPlaying(false);
     setProgress(0);
     if (currentlyPlaying === videoRef.current) currentlyPlaying = null;
+    if (currentlyPlayingStop === stopVideo) currentlyPlayingStop = null;
+  }
+
+  function stopGif() {
+    setGifPlaying(false);
+  }
+
+  function toggleGif(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (gifPlaying) {
+      stopGif();
+      if (currentlyPlayingStop === stopGif) currentlyPlayingStop = null;
+      return;
+    }
+    if (currentlyPlayingStop) currentlyPlayingStop();
+    currentlyPlayingStop = stopGif;
+    setGifPlaying(true);
+  }
+
+  function openDetail(e: React.MouseEvent) {
+    e.stopPropagation();
+    router.push(`/w/${wallpaper.id}`);
   }
 
   return (
     <div className="overflow-hidden rounded-[10px] border border-white/8 bg-[#0d0d0d] transition-all duration-200 hover:-translate-y-1 hover:scale-[1.015] hover:border-white/50 hover:shadow-[0_12px_36px_4px_rgba(255,255,255,0.25)]">
       <div
-        onClick={wallpaper.media_type === "video" ? togglePlay : undefined}
+        onClick={wallpaper.media_type === "video" ? togglePlay : isGif ? toggleGif : openDetail}
         className="group relative aspect-video cursor-pointer overflow-hidden bg-[#181022]"
       >
         {wallpaper.media_type === "image" ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={wallpaper.media_url}
-            alt={wallpaper.title}
-            className="h-full w-full object-cover transition-[filter] duration-200 group-hover:brightness-[1.35]"
-          />
+          isGif ? (
+            <>
+              {gifPlaying && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={wallpaper.media_url}
+                  alt={wallpaper.title}
+                  className="h-full w-full object-cover transition-[filter] duration-200 group-hover:brightness-[1.35]"
+                />
+              )}
+              {!gifPlaying && (
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-[0_4px_18px_rgba(0,0,0,0.5)]">
+                    <span className="ml-1 h-0 w-0 border-y-[10px] border-l-[16px] border-y-transparent border-l-[#111]" />
+                  </span>
+                </span>
+              )}
+            </>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={wallpaper.media_url}
+              alt={wallpaper.title}
+              className="h-full w-full object-cover transition-[filter] duration-200 group-hover:brightness-[1.35]"
+            />
+          )
         ) : (
           <>
             <video

@@ -325,7 +325,7 @@ export function DetailView({
             onClick={download}
             className="mb-[18px] w-full rounded-lg bg-white py-3.5 text-[13.5px] font-bold tracking-[0.5px] text-black hover:bg-[#d8d8d8]"
           >
-            DOWNLOAD WALLPAPER
+            DOWNLOAD {wallpaper.category === "Icono" ? "ICONO" : wallpaper.category === "Banner" ? "BANNER" : "WALLPAPER"}
           </button>
 
           <div className="overflow-hidden rounded-[10px] border border-white/8 bg-[#0d0d0d]">
