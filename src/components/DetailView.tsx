@@ -55,8 +55,11 @@ export function DetailView({
   const [posting, setPosting] = useState(false);
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const ext = wallpaper.media_url.split(".").pop()?.split("?")[0] || (wallpaper.media_type === "video" ? "mp4" : "jpg");
-  const downloadName = `${slugify(wallpaper.title)}-ceitowalls-com.${ext}`;
+  const isBlurred = wallpaper.media_type === "image" && QUALITY_BLUR[quality] !== "none";
+  const ext = isBlurred
+    ? "png"
+    : wallpaper.media_url.split(".").pop()?.split("?")[0] || (wallpaper.media_type === "video" ? "mp4" : "jpg");
+  const downloadName = `${slugify(wallpaper.title)}-${quality.toLowerCase()}-ceitowalls-com.${ext}`;
 
   async function submitComment() {
     if (!profile || !commentDraft.trim()) return;
@@ -90,7 +93,27 @@ export function DetailView({
   async function download() {
     const res = await fetch(wallpaper.media_url);
     const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
+    const blur = QUALITY_BLUR[quality];
+
+    let downloadBlob = blob;
+    if (wallpaper.media_type === "image" && blur !== "none") {
+      downloadBlob = await new Promise<Blob>((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext("2d")!;
+          ctx.filter = blur;
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob((b) => resolve(b ?? blob), "image/png");
+        };
+        img.onerror = () => resolve(blob);
+        img.src = URL.createObjectURL(blob);
+      });
+    }
+
+    const url = URL.createObjectURL(downloadBlob);
     const a = document.createElement("a");
     a.href = url;
     a.download = downloadName;
@@ -166,8 +189,42 @@ export function DetailView({
                   </div>
                 </>
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={wallpaper.media_url} alt={wallpaper.title} className="h-full w-full object-contain bg-black" />
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={wallpaper.media_url}
+                    alt={wallpaper.title}
+                    style={{ filter: QUALITY_BLUR[quality] }}
+                    className="h-full w-full object-contain bg-black transition-[filter] duration-200"
+                  />
+                  <div className="absolute right-3 top-3 z-10">
+                    <button
+                      onClick={() => setQualityOpen((v) => !v)}
+                      className="flex items-center gap-1.5 rounded-full border border-white/20 bg-black/70 px-3 py-1.5 text-[12.5px] font-semibold text-white hover:border-white/50 hover:bg-black/90"
+                    >
+                      ⚙ {quality}
+                      <span className={`text-[9px] transition-transform ${qualityOpen ? "rotate-180" : ""}`}>▾</span>
+                    </button>
+                    {qualityOpen && (
+                      <div className="absolute right-0 top-full mt-2 flex min-w-[110px] flex-col gap-0.5 rounded-lg border border-white/15 bg-[#0d0d0d] p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.6)]">
+                        {QUALITIES.map((q) => (
+                          <button
+                            key={q}
+                            onClick={() => {
+                              setQuality(q);
+                              setQualityOpen(false);
+                            }}
+                            className={`rounded-md px-3 py-2 text-left text-[13px] hover:bg-white/10 hover:text-white ${
+                              q === quality ? "text-white" : "text-[#c0c0c0]"
+                            }`}
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
             <div className="border-t border-white/8 py-3 text-center text-xs font-semibold tracking-[1.2px] text-[#a0a0a0]">
