@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useApp } from "@/context/AppContext";
 import { useRouter } from "next/navigation";
 import { DISCORD_CATEGORY_PRESET } from "@/lib/types";
+import { compressImageToLimit, compressVideoToLimit } from "@/lib/compress";
 
 type PendingUpload = {
   file: File;
@@ -26,23 +27,13 @@ export function UploadButton() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [saving, setSaving] = useState(false);
+  const [compressing, setCompressing] = useState(false);
 
   function trigger() {
     inputRef.current?.click();
   }
 
-  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > MAX_UPLOAD_BYTES) {
-      showToast(
-        `El archivo pesa ${formatMB(file.size)}MB, el máximo permitido es 50MB. Comprimilo antes de subirlo.`
-      );
-      e.target.value = "";
-      return;
-    }
-
+  function readMetadata(file: File) {
     const isVideo = file.type.startsWith("video");
     const el = document.createElement(isVideo ? "video" : "img");
 
@@ -62,7 +53,32 @@ export function UploadButton() {
       img.onload = () => finish(img.naturalWidth, img.naturalHeight);
       img.src = URL.createObjectURL(file);
     }
+  }
+
+  async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.files?.[0];
     e.target.value = "";
+    if (!raw) return;
+
+    let file = raw;
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setCompressing(true);
+      showToast(`Comprimiendo ${formatMB(file.size)}MB para bajar de 50MB, puede tardar…`);
+      try {
+        file = file.type.startsWith("video")
+          ? await compressVideoToLimit(file, MAX_UPLOAD_BYTES)
+          : await compressImageToLimit(file, MAX_UPLOAD_BYTES);
+        showToast(`Comprimido a ${formatMB(file.size)}MB`);
+      } catch (err) {
+        showToast(`No se pudo comprimir: ${(err as Error).message}`);
+        setCompressing(false);
+        return;
+      }
+      setCompressing(false);
+    }
+
+    readMetadata(file);
   }
 
   function cancel() {
@@ -108,9 +124,10 @@ export function UploadButton() {
       <input ref={inputRef} type="file" accept="image/*,video/*" onChange={onFileChange} className="hidden" />
       <button
         onClick={trigger}
-        className="rounded-[7px] bg-white px-4 py-2.5 text-[12.5px] font-bold tracking-[0.4px] text-black hover:bg-[#d8d8d8]"
+        disabled={compressing}
+        className="rounded-[7px] bg-white px-4 py-2.5 text-[12.5px] font-bold tracking-[0.4px] text-black hover:bg-[#d8d8d8] disabled:opacity-50"
       >
-        ↑ SUBIR
+        {compressing ? "COMPRIMIENDO…" : "↑ SUBIR"}
       </button>
 
       {pending && (
