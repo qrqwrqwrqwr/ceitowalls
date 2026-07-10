@@ -8,7 +8,7 @@ import { Header } from "@/components/Header";
 import { WallpaperCard } from "@/components/WallpaperCard";
 import { UploadButton } from "@/components/modals/UploadModal";
 import { DeleteConfirmModal } from "@/components/modals/DeleteConfirmModal";
-import type { Wallpaper } from "@/lib/types";
+import { DISCORD_CATEGORY_PRESET, type Wallpaper } from "@/lib/types";
 
 const PAGE_SIZE = 16;
 
@@ -25,6 +25,8 @@ export function GridView({ wallpapers }: { wallpapers: Wallpaper[] }) {
 
   const filtered = useMemo(() => {
     return wallpapers.filter((w) => {
+      const isDiscordOnly = DISCORD_CATEGORY_PRESET.includes(w.category);
+      if (isDiscordOnly && w.category !== activeCategory) return false;
       if (activeCategory && w.category !== activeCategory) return false;
       if (activeResolution && w.resolution !== activeResolution) return false;
       if (searchQuery) {
