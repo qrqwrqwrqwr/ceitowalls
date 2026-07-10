@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useApp } from "@/context/AppContext";
 import { useRouter } from "next/navigation";
-import { DISCORD_CATEGORY_PRESET } from "@/lib/types";
+import { CATEGORY_PRESET, DISCORD_CATEGORY_PRESET } from "@/lib/types";
 import { compressImageToLimit, compressVideoToLimit } from "@/lib/compress";
 
 type PendingUpload = {
@@ -148,8 +148,8 @@ export function UploadButton() {
               placeholder="Ej: Anime, Fantasy, Vehicle…"
               className="mb-2 w-full rounded-[7px] border border-white/15 bg-[#181818] px-3 py-2.5 text-[13.5px] text-white outline-none"
             />
-            <div className="mb-4 flex gap-2">
-              {DISCORD_CATEGORY_PRESET.map((c) => (
+            <div className="mb-4 flex flex-wrap gap-1.5">
+              {[...CATEGORY_PRESET, ...DISCORD_CATEGORY_PRESET].map((c) => (
                 <button
                   key={c}
                   type="button"
