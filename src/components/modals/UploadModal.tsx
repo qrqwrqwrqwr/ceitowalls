@@ -13,7 +13,7 @@ type PendingUpload = {
   resolution: string;
 };
 
-const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 70 * 1024 * 1024;
 
 function formatMB(bytes: number) {
   return (bytes / (1024 * 1024)).toFixed(1);

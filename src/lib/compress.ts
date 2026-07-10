@@ -65,7 +65,7 @@ export async function compressVideoToLimit(
   await ffmpeg.writeFile(inputName, await fetchFile(file));
 
   // trim long clips instead of downscaling resolution, so quality stays at 1080p
-  const trimTo = duration >= 30 ? 20 : null;
+  const trimTo = duration > 20 ? 20 : null;
   const effectiveDuration = trimTo ?? duration;
 
   // target bitrate with safety margin, leaving room for audio track
