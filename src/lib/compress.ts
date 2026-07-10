@@ -64,17 +64,22 @@ export async function compressVideoToLimit(
   const outputName = "output.mp4";
   await ffmpeg.writeFile(inputName, await fetchFile(file));
 
+  // trim long clips instead of downscaling resolution, so quality stays at 1080p
+  const trimTo = duration >= 30 ? 20 : null;
+  const effectiveDuration = trimTo ?? duration;
+
   // target bitrate with safety margin, leaving room for audio track
-  const targetTotalBitrate = Math.floor((maxBytes * 8) / duration);
+  const targetTotalBitrate = Math.floor((maxBytes * 8) / effectiveDuration);
   const audioBitrate = 96_000;
   const videoBitrate = Math.max(150_000, Math.floor(targetTotalBitrate * 0.9) - audioBitrate);
 
-  onProgress?.("Comprimiendo video…");
+  onProgress?.(trimTo ? "Recortando y comprimiendo video…" : "Comprimiendo video…");
   await ffmpeg.exec([
     "-i",
     inputName,
+    ...(trimTo ? ["-t", `${trimTo}`] : []),
     "-vf",
-    "scale='min(1280,iw)':-2",
+    "scale='min(1920,iw)':-2",
     "-c:v",
     "libx264",
     "-preset",
