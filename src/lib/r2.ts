@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 export const r2 = new S3Client({
   region: "auto",
@@ -30,4 +30,22 @@ export async function deleteFromR2(key: string) {
 
 export function keyFromR2Url(url: string) {
   return url.startsWith(PUBLIC_URL) ? url.slice(PUBLIC_URL.length + 1) : null;
+}
+
+export async function getTotalStorageUsedBytes(): Promise<number> {
+  let total = 0;
+  let continuationToken: string | undefined;
+
+  do {
+    const res = await r2.send(
+      new ListObjectsV2Command({
+        Bucket: BUCKET,
+        ContinuationToken: continuationToken,
+      })
+    );
+    total += (res.Contents ?? []).reduce((sum, obj) => sum + (obj.Size ?? 0), 0);
+    continuationToken = res.IsTruncated ? res.NextContinuationToken : undefined;
+  } while (continuationToken);
+
+  return total;
 }
